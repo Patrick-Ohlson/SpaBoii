@@ -234,25 +234,35 @@ def send_packet_with_debug():
                 #print("Configurations")
                 continue
             elif packet.type==0:
-                print("Live")
+                print("\n\nLive:\n")
                 bytes_result = bytes(packet.payload)
                 #print the bytes
                 hex_representation = ' '.join(f'{byte:02}' for byte in bytes_result)                
                 spa_live = SpaLive.spa_live()
                 spa_live.ParseFromString(bytes_result)
                 
-                print(f"Temperature: {(spa_live.temperature_fahrenheit-32)* 5 / 9}")
-                print(f"Filter: {spa_live.filter}")
-                print(f"Ozone: {spa_live.ozone}")
-                print(f"BLower 1: {spa_live.blower_1}")
-                print(f"BLower 2: {spa_live.blower_2}")
-                print(f"Pump 1: {spa_live.pump_1}")
-                print(f"Pump 2: {spa_live.pump_2}")
-                print(f"Pump 3: {spa_live.pump_3}")
-                print(f"Heater 1: {spa_live.heater_1}")
-                print(f"Heater 1: {spa_live.heater_2}")
 
-                #print (f"Heater enum: {spa_live.HEATER_STATUS.Name(spa_live.heater_1)}")
+                
+
+                print(f"Temperature: {(spa_live.temperature_fahrenheit-32)* 5 / 9}")
+                print(f"Filter: {SpaLive.FILTER_STATUS.Name(spa_live.filter)}")
+                print(f"Onzen: {SpaLive.OZONE_STATUS.Name(spa_live.onzen).lstrip('OZONE_')}")
+                print(f"BLower 1: {SpaLive.PUMP_STATUS.Name(spa_live.blower_1)}")
+                print(f"BLower 2: {SpaLive.PUMP_STATUS.Name(spa_live.blower_2)}")
+                print(f"Pump 1: { SpaLive.PUMP_STATUS.Name(spa_live.pump_1) }")
+                print(f"Pump 2: {SpaLive.PUMP_STATUS.Name(spa_live.pump_2)}")
+                print(f"Pump 3: {SpaLive.PUMP_STATUS.Name(spa_live.pump_3) }")
+                print(f"Heater 1: {SpaLive.HEATER_STATUS.Name(spa_live.heater_1)}")
+                print(f"Heater 1: {SpaLive.HEATER_STATUS.Name(spa_live.heater_2)}")
+                print(f"Light: {spa_live.lights}")
+                print(f"All On: {spa_live.all_on}")
+
+                
+                
+                
+                
+                 
+                
 
                 print(f"Current ADC: {spa_live.current_adc}")
                 
