@@ -2,7 +2,7 @@
 import socket
 
 import io
-from levven_packet import LevvenPacket  # Assuming you have saved the LevvenPacket class in a module
+from levven_packet import LevvenPacket  
 import proto.spa_live_pb2 as SpaLive
 
 state = 0
