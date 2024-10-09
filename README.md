@@ -2,6 +2,8 @@
 ## Disclaimer
 USE AT OWN RISK, I TAKE NO RESPONSIBILITY FOR ANY ERRORS THIS MIGHT CAUSE
 
+[License](License.md)
+
 ## Background 
 This started with the Home Assistant Forum thread, regarding Arctic SPA API
 
