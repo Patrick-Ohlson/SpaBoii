@@ -166,11 +166,9 @@ def handle_packets(b):
         state = 0
 
 
-
-
 def receive(packet):
     """Handle the received packet (placeholder function)."""
-    print(f"Received packet: {packet}")
+    #print(f"Received packet: {packet}")
 
 def send_packet_with_debug():
     # Create a TCP client socket
@@ -178,18 +176,18 @@ def send_packet_with_debug():
 
     # Connect to the server at IP 192.168.68.106 on port 65534
     client.connect(("192.168.68.106", 65534))
-    #client.connect(("127.0.0.1", 8080))
-
-    # Prepare the LevvenPacket
-    pckt = LevvenPacket(0, bytearray())  # Initialize with type 0 and an empty payload
-    pack = LevvenToBytes(pckt)
-
-    # Send the serialized packet over the TCP connection
-    client.sendall(pack)
+  
 
     
-    
+    i=0
     while True:
+        #ping the spa every 4th iteration
+        if i%4==0:
+            i=0
+            PingSpa(client)
+        i+=1
+
+
         temp = bytearray(2048)  # Declare the variable temp
         temp=client.recv(2048)
 
@@ -199,8 +197,12 @@ def send_packet_with_debug():
         # Process the received data
         with io.BytesIO(temp) as net_stream:
             read_and_process_packets(net_stream)
-
-        pack=LevvenToBytes(packet)
+            
+        try:
+            pack=LevvenToBytes(packet)
+        except Exception as e:
+            print("---")
+            continue
 
     #loop forever
    
@@ -211,6 +213,13 @@ def send_packet_with_debug():
 
     # Optionally close the connection after sending
     client.close()
+
+def PingSpa(client):
+    pckt = LevvenPacket(0, bytearray())  # Initialize with type 0 and an empty payload
+    pack = LevvenToBytes(pckt)
+
+    # Send the serialized packet over the TCP connection
+    client.sendall(pack)
 
 def LevvenToBytes(pckt):
     pack = pckt.serialize()  # Serialize the packet to bytes
