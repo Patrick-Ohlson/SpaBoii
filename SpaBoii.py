@@ -7,6 +7,45 @@ state = 0
 temp1 = temp2 = temp3 = 0
 i = 0
 packet = LevvenPacket()
+debug=False
+
+def PingSpa(client):
+    pckt = LevvenPacket(0, bytearray())  # Initialize with type 0 and an empty payload
+    pack = LevvenToBytes(pckt)
+
+    # Send the serialized packet over the TCP connection
+    client.sendall(pack)
+
+def LevvenToBytes(pckt):
+    pack = pckt.serialize()  # Serialize the packet to bytes
+
+    # Debug: Print the serialized packet as hex bytes
+    if debug:
+        hex_representation = ' '.join(f'{byte:02X}' for byte in pack)
+        print(f"Serialized packet in hex: {hex_representation}")
+    return pack
+
+def get_spa():
+    # Create a UDP socket
+    client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    
+    # Enable broadcasting
+    client.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+
+    # Prepare and send the broadcast message
+    request_data = "Query,BlueFalls,".encode('ascii')
+    client.sendto(request_data, ('<broadcast>', 9131))
+
+    # Receive the response (no explicit bind needed)
+    server_response_data, server_ep = client.recvfrom(4096)
+    
+    # Decode the response and output the server's address and data
+    server_response = server_response_data.decode('ascii')
+    print(f"Located SPA at {server_ep[0]}: {server_response}")
+
+    # Close the client socket
+    client.close()
+
 
 
 
@@ -31,13 +70,6 @@ def read_and_process_packets(net_stream):
     for item in bytes_data:
         handle_packets(item)
 
-# Example usage:
-# Assuming `sock` is a connected socket object
-# with sock.makefile('rb') as net_stream:
-#     read_and_process_packets(net_stream)
-
-
-
 def get_int(b1, b2, b3, b4):
     """Convert four bytes to an integer."""
     return (b1 << 24) | (b2 << 16) | (b3 << 8) | b4
@@ -45,11 +77,6 @@ def get_int(b1, b2, b3, b4):
 def get_short(b1, b2):
     """Convert two bytes to a short."""
     return (b1 << 8) | b2
-
-state = 0
-temp1 = temp2 = temp3 = 0
-i = 0
-packet = LevvenPacket()
 
 def get_int(b1, b2, b3, b4):
     """Convert four bytes to an integer."""
@@ -165,7 +192,6 @@ def handle_packets(b):
     except Exception:
         state = 0
 
-
 def receive(packet):
     """Handle the received packet (placeholder function)."""
     #print(f"Received packet: {packet}")
@@ -201,60 +227,18 @@ def send_packet_with_debug():
         try:
             pack=LevvenToBytes(packet)
         except Exception as e:
-            print("---")
+            #print("---")
+            pack=None
             continue
+        if pack!=None:
+            if packet.type==0:
+                print("Configurations")
+            elif packet.type==48:
+                print("Live")
 
-    #loop forever
    
-
-
-
-
-
     # Optionally close the connection after sending
     client.close()
-
-def PingSpa(client):
-    pckt = LevvenPacket(0, bytearray())  # Initialize with type 0 and an empty payload
-    pack = LevvenToBytes(pckt)
-
-    # Send the serialized packet over the TCP connection
-    client.sendall(pack)
-
-def LevvenToBytes(pckt):
-    pack = pckt.serialize()  # Serialize the packet to bytes
-
-    # Debug: Print the serialized packet as hex bytes
-    hex_representation = ' '.join(f'{byte:02X}' for byte in pack)
-    print(f"Serialized packet in hex: {hex_representation}")
-    return pack
-
-# Example usage:
-# send_packet_with_debug()
-
-
-
-def get_spa():
-    # Create a UDP socket
-    client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    
-    # Enable broadcasting
-    client.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-
-    # Prepare and send the broadcast message
-    request_data = "Query,BlueFalls,".encode('ascii')
-    client.sendto(request_data, ('<broadcast>', 9131))
-
-    # Receive the response (no explicit bind needed)
-    server_response_data, server_ep = client.recvfrom(4096)
-    
-    # Decode the response and output the server's address and data
-    server_response = server_response_data.decode('ascii')
-    print(f"Located SPA at {server_ep[0]}: {server_response}")
-
-    # Close the client socket
-    client.close()
-
 
 
 
