@@ -19,6 +19,7 @@ Feel free to test it with your own spa, it should at this stage only provide inf
 
 ## Requirements
 Python 3.8 (or above)
+
 pip install protobuf==5.28.2
 
 ## Usage
