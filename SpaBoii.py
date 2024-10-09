@@ -43,10 +43,12 @@ def get_spa():
     
     # Decode the response and output the server's address and data
     server_response = server_response_data.decode('ascii')
-    print(f"Located SPA at {server_ep[0]}: {server_response}")
+    if debug:
+        print(f"Located SPA at {server_ep[0]}: {server_response}")
 
     # Close the client socket
     client.close()
+    return server_ep[0]
 
 def read_and_process_packets(net_stream):
     # Simulating MemoryStream using BytesIO
@@ -195,12 +197,12 @@ def receive(packet):
     """Handle the received packet (placeholder function)."""
     #print(f"Received packet: {packet}")
 
-def send_packet_with_debug():
+def send_packet_with_debug(spaIP):
     # Create a TCP client socket
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     # Connect to the server at IP 192.168.68.106 on port 65534
-    client.connect(("192.168.68.106", 65534))
+    client.connect((spaIP, 65534))
   
 
     
@@ -257,25 +259,19 @@ def send_packet_with_debug():
                 print(f"Light: {spa_live.lights}")
                 print(f"All On: {spa_live.all_on}")
 
-                
-                
-                
-                
-                 
-                
-
                 print(f"Current ADC: {spa_live.current_adc}")
                 
                 
                 
 
-    # Optionally close the connection after sending
+    
     client.close()
 
 
 
-get_spa()
-send_packet_with_debug()
+spaIP=get_spa()
+print (f"Spa IP: {spaIP}")
+send_packet_with_debug(spaIP)
 
 
 
