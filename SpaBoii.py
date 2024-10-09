@@ -46,9 +46,6 @@ def get_spa():
     # Close the client socket
     client.close()
 
-
-
-
 def read_and_process_packets(net_stream):
     # Simulating MemoryStream using BytesIO
     ms = io.BytesIO()
