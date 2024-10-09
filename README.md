@@ -7,15 +7,13 @@ This started with the Home Assistant Forum thread, regarding Arctic SPA API
 
 https://community.home-assistant.io/t/jacuzzi-arctic-spas-api/464596
 
-It now has its own thread
-
-Todo
-
-
+It might get it's own thread
 
 ## Preface
 
 This is boilerplate code for accessing Arctic Spa's and derivatives with python 3.8
+
+Feel free to test it with your own spa, it should at this stage only provide info, so it should be fairly safe to use
 
 ## Requirements
 Python 3.8 (or above)
