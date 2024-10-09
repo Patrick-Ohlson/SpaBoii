@@ -27,6 +27,8 @@ python SpaBoii.py
 
 This should locate the SPA on your network and provide basic info
 
+(If it does nothing, add your spa ip directly in the code instead)
+
 REMEMBER: This is boilerplate code, meant to provide a basic codebase for communication with Arctic SPA's
 
 SO USE AT OWN RISK, I TAKE NO RESPONSIBILITY FOR ANY ERRORS THIS MIGHT CAUSE
