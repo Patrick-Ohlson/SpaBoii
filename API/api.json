@@ -1,0 +1,815 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Arctic Spas API",
+    "description": "API that enables users to control their Arctic Spa.  This API allows users to query the status of their spa's features, as well as control their spa's lights, temperature, pumps, and many other spa features.  Certain features are only available for spas that have them enabled.  An API key is required for authorization, obtainable at [https://myarcticspa.com/spa/SpaAPIManagement.aspx](https://myarcticspa.com/spa/SpaAPIManagement.aspx).  Please note that the spa may not respond to certain commands based on its internal state, and the next state may not match that requested.  Developers are encouraged to check the status of the spa to confirm it matches their expectations.",
+    "contact": {
+
+    },
+    "version": "2.0"
+  },
+  "paths": {
+    "/v2/spa/status": {
+      "get": {
+        "tags": [
+          "Spa Control"
+        ],
+        "summary": "Get Spa Status",
+        "description": "Gets the status of the spa's features including pumps, lights, and temperature.",
+        "operationId": "V2Spa",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "connected": {
+                      "type": "boolean",
+                      "description": "Whether or not spa is online"
+                    },
+                    "temperatureF": {
+                      "type": "integer",
+                      "description": "Spa temperature in Fahrenheit"
+                    },
+                    "setpointF": {
+                      "type": "integer",
+                      "description": "Spa setpoint temperature in Fahrenheit"
+                    },
+                    "lights": {
+                      "type": "string",
+                      "description": "Lights status, one of [off,on]"
+                    },
+                    "spaboy_connected": {
+                      "type": "boolean",
+                      "description": "(If Spa Boy® enabled on spa) Whether a Spa Boy® is connected or not"
+                    },
+                    "spaboy_producing": {
+                      "type": "boolean",
+                      "description": "(If Spa Boy® connected) Whether a Spa Boy® is producing or not"
+                    },
+                    "ph": {
+                      "type": "number",
+                      "description": "(If Spa Boy® connected) Spa pH"
+                    },
+                    "ph_status": {
+                      "type": "string",
+                      "description": "(If Spa Boy® connected) Spa pH status, one of [LOW,CAUTION_LOW,OK,CAUTION_HIGH,HIGH]"
+                    },
+                    "orp": {
+                      "type": "number",
+                      "description": "(If Spa Boy® connected) Spa oxygen reduction potential"
+                    },
+                    "orp_status": {
+                      "type": "string",
+                      "description": "(If Spa Boy® connected) Spa ORP status, one of [LOW,CAUTION_LOW,OK,CAUTION_HIGH,HIGH]"
+                    },
+                    "sds": {
+                      "type": "string",
+                      "description": "(If SDS enabled on spa) SDS status, one of [off,on]"
+                    },
+                    "yess": {
+                      "type": "string",
+                      "description": "(If YESS enabled on spa) YESS status, one of [off,on]"
+                    },
+                    "fogger": {
+                      "type": "string",
+                      "description": "(If fogger enabled on spa) fogger status, one of [off,on]"
+                    },
+                    "blower1": {
+                      "type": "string",
+                      "description": "(If blower 1 enabled on spa) blower 1 status, one of [off,on]"
+                    },
+                    "blower2": {
+                      "type": "string",
+                      "description": "(If blower 1 enabled on spa) blower 1 status, one of [off,on]"
+                    },
+                    "pump1": {
+                      "type": "string",
+                      "description": "Pump 1 status, one of [off,low,high]"
+                    },
+                    "pump2": {
+                      "type": "string",
+                      "description": "Pump 2 status, one of [off,high]"
+                    },
+                    "pump3": {
+                      "type": "string",
+                      "description": "Pump 3 status, one of [off,high]"
+                    },
+                    "pump4": {
+                      "type": "string",
+                      "description": "(If pump 4 enabled on spa) Pump 4 status, one of [off,high]"
+                    },
+                    "pump5": {
+                      "type": "string",
+                      "description": "(If pump 5 enabled on spa) Pump 5 status, one of [off,high]"
+                    },
+                    "filter_status": {
+                      "type": "string",
+                      "description": "Filter status, one of [Idle,Purge,Filtering,Suspended,Overtemperature,Resuming,Boost,Sanitize]"
+                    },
+                    "filter_duration": {
+                      "type": "integer",
+                      "description": "Filtering duration, in hours"
+                    },
+                    "filter_frequency": {
+                      "type": "number",
+                      "description": "Filtering frequency, in cycles/day"
+                    },
+                    "filter_suspension": {
+                      "type": "boolean",
+                      "description": "Whether or not filtering will be suspended when in an overtemp state"
+                    },
+                    "errors": {
+                      "type": "array",
+                      "description": "Array of active error codes",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Too many requests",
+            "headers": {
+              "x-ratelimit-limit": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Requests limit per minute"
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/v2/spa/temperature": {
+      "put": {
+        "tags": [
+          "Spa Control"
+        ],
+        "summary": "Set Spa Temperature",
+        "description": "Controls the spa's temperature.  Accepts a single \"setpointF\" field of the new temperature setpoint in Fahrenheit.  If an invalid setpoint is given, an error message will be returned with the allowed setpoint range.",
+        "operationId": "V2Temperature",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "setpointF": {
+                    "type": "integer",
+                    "description": "New setpoint temperature in Fahrenheit"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "422": {
+            "description": "Invalid parameter provided. Gives a JSON error response with the accepted range if parameter is out of range."
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Too many requests",
+            "headers": {
+              "x-ratelimit-limit": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Requests limit per minute"
+              }
+            }
+          },
+          "503": {
+            "description": "Server error, failed to execute command.  Please retry."
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/v2/spa/lights": {
+      "put": {
+        "tags": [
+          "Spa Control"
+        ],
+        "summary": "Set Spa Lights",
+        "description": "Toggles the spa's lights.  Accepts a \"state\" parameter which can be set to \"off\" or \"on\".  If the current state of the lights matches the new state, a response with HTTP code 202 will be returned.",
+        "operationId": "V2Light",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "state": {
+                    "type": "string",
+                    "enum": [
+                      "on",
+                      "off"
+                    ],
+                    "description": "New state of lights"
+                  }
+                }
+              },
+              "encoding": {
+                "state": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "202": {
+            "description": "Valid request but new state is the same as the current state"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "422": {
+            "description": "Invalid parameter provided"
+          },
+          "429": {
+            "description": "Too many requests",
+            "headers": {
+              "x-ratelimit-limit": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Requests limit per minute"
+              }
+            }
+          },
+          "503": {
+            "description": "Server error, failed to execute command.  Please retry."
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/v2/spa/pumps/{pump}": {
+      "put": {
+        "tags": [
+          "Spa Control"
+        ],
+        "summary": "Set Spa Pumps",
+        "description": "Controls the spa's pumps.  The \"pump\" path parameter determines which pump to control (or all of them).  The pumps have two different states, an \"off\" state, and an \"on\"/\"high\" state.  Pump 1 has a third \"low\" state.  When controlling individual pumps, if the current state of the pump matches the new state, a response with HTTP code 202 will be returned.",
+        "operationId": "V2Pump",
+        "parameters": [
+          {
+            "name": "pump",
+            "in": "path",
+            "required": true,
+            "description": "Number of pump to control",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "all"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "state": {
+                    "type": "string",
+                    "enum": [
+                      "on",
+                      "off",
+                      "low",
+                      "high"
+                    ],
+                    "description": "New state of the selected pump"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "202": {
+            "description": "Valid request but new state is the same as the current state"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "422": {
+            "description": "Invalid parameter provided"
+          },
+          "429": {
+            "description": "Too many requests",
+            "headers": {
+              "x-ratelimit-limit": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Requests limit per minute"
+              }
+            }
+          },
+          "503": {
+            "description": "Server error, failed to execute command.  Please retry."
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/v2/spa/easymode": {
+      "put": {
+        "tags": [
+          "Spa Control"
+        ],
+        "summary": "Set Spa Easy Mode",
+        "description": "Toggles the spa's easy mode.  Accepts a \"state\" parameter which can be set to \"off\" or \"on\".",
+        "operationId": "V2EasyMode",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "state": {
+                    "type": "string",
+                    "enum": [
+                      "on",
+                      "off"
+                    ],
+                    "description": "New state of easymode"
+                  }
+                }
+              },
+              "encoding": {
+                "state": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "202": {
+            "description": "Valid request but new state is the same as the current state"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "422": {
+            "description": "Invalid parameter provided"
+          },
+          "429": {
+            "description": "Too many requests",
+            "headers": {
+              "x-ratelimit-limit": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Requests limit per minute"
+              }
+            }
+          },
+          "503": {
+            "description": "Server error, failed to execute command.  Please retry."
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/v2/spa/sds": {
+      "put": {
+        "tags": [
+          "Spa Control"
+        ],
+        "summary": "Set Spa SDS",
+        "description": "If the spa has SDS, it toggles the spa's SDS functionality.  Accepts a \"state\" parameter which can be set to \"off\" or \"on\".",
+        "operationId": "V2SDS",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "state": {
+                    "type": "string",
+                    "enum": [
+                      "on",
+                      "off"
+                    ],
+                    "description": "New state of SDS"
+                  }
+                }
+              },
+              "encoding": {
+                "state": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "202": {
+            "description": "Valid request but new state is the same as the current state"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "422": {
+            "description": "Invalid parameter provided"
+          },
+          "429": {
+            "description": "Too many requests",
+            "headers": {
+              "x-ratelimit-limit": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Requests limit per minute"
+              }
+            }
+          },
+          "503": {
+            "description": "Server error, failed to execute command.  Please retry."
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/v2/spa/yess": {
+      "put": {
+        "tags": [
+          "Spa Control"
+        ],
+        "summary": "Set Spa YESS",
+        "description": "If the spa has YESS, it toggles the spa's YESS functionality.  Accepts a \"state\" parameter which can be set to \"off\" or \"on\".",
+        "operationId": "V2YESS",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "state": {
+                    "type": "string",
+                    "enum": [
+                      "on",
+                      "off"
+                    ],
+                    "description": "New state of YESS"
+                  }
+                }
+              },
+              "encoding": {
+                "state": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "202": {
+            "description": "Valid request but new state is the same as the current state"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "422": {
+            "description": "Invalid parameter provided"
+          },
+          "429": {
+            "description": "Too many requests",
+            "headers": {
+              "x-ratelimit-limit": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Requests limit per minute"
+              }
+            }
+          },
+          "503": {
+            "description": "Server error, failed to execute command.  Please retry."
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/v2/spa/boost": {
+      "put": {
+        "tags": [
+          "Spa Control"
+        ],
+        "summary": "Activate Boost Mode",
+        "description": "Activates the spa's boost functionality. No parameters required.",
+        "operationId": "V2Boost",
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "422": {
+            "description": "Invalid parameter provided"
+          },
+          "429": {
+            "description": "Too many requests",
+            "headers": {
+              "x-ratelimit-limit": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Requests limit per minute"
+              }
+            }
+          },
+          "503": {
+            "description": "Server error, failed to execute command.  Please retry."
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/v2/spa/fogger": {
+      "put": {
+        "tags": [
+          "Spa Control"
+        ],
+        "summary": "Set Spa Fogger",
+        "description": "If the spa has a fogger, it toggles the spa's fogger functionality.  Accepts a \"state\" parameter which can be set to \"off\" or \"on\".",
+        "operationId": "V2Fogger",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "state": {
+                    "type": "string",
+                    "enum": [
+                      "on",
+                      "off"
+                    ],
+                    "description": "New state of fogger"
+                  }
+                }
+              },
+              "encoding": {
+                "state": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "202": {
+            "description": "Valid request but new state is the same as the current state"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "422": {
+            "description": "Invalid parameter provided"
+          },
+          "429": {
+            "description": "Too many requests",
+            "headers": {
+              "x-ratelimit-limit": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Requests limit per minute"
+              }
+            }
+          },
+          "503": {
+            "description": "Server error, failed to execute command.  Please retry."
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/v2/spa/blowers/{blower}": {
+      "put": {
+        "tags": [
+          "Spa Control"
+        ],
+        "summary": "Set Spa Blowers",
+        "description": "If the spa has blowers, this controls the spa's blowers.  The \"blower\" path parameter determines which blower to control (or all of them).  The pumps have two different states, an \"off\" state, and an \"on\" state.  When controlling individual pumps, if the current state of the pump matches the new state, a response with HTTP code 202 will be returned.",
+        "operationId": "V2Blower",
+        "parameters": [
+          {
+            "name": "blower",
+            "in": "path",
+            "required": true,
+            "description": "Number of blower to control",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1",
+                "2",
+                "all"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "state": {
+                    "type": "string",
+                    "enum": [
+                      "on",
+                      "off"
+                    ],
+                    "description": "New state of the selected blower"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "202": {
+            "description": "Valid request but new state is the same as the current state"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Blower unavailable"
+          },
+          "422": {
+            "description": "Invalid parameter provided"
+          },
+          "429": {
+            "description": "Too many requests",
+            "headers": {
+              "x-ratelimit-limit": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Requests limit per minute"
+              }
+            }
+          },
+          "503": {
+            "description": "Server error, failed to execute command.  Please retry."
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/v2/spa/filter": {
+      "put": {
+        "tags": [
+          "Spa Control"
+        ],
+        "summary": "Set Filter and Control Filter Settings",
+        "description": "Toggles the spa's filtering with a \"state\" parameter which can be set to \"off\" or \"on\".  Also allows for modifying the filtering duration, filtering frequency, and fitering suspension when in an overtemp state.",
+        "operationId": "V2Filter",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "state": {
+                    "type": "string",
+                    "enum": [
+                      "on",
+                      "off"
+                    ],
+                    "description": "New state of filter"
+                  },
+                  "frequency": {
+                    "type": "integer",
+                    "description": "New filtering frequency in cycles/day"
+                  },
+                  "duration": {
+                    "type": "integer",
+                    "description": "New filtering duration in hours"
+                  },
+                  "suspension": {
+                    "type": "boolean",
+                    "description": "Enable filter suspension when in an overtemp state"
+                  }
+                }
+              },
+              "encoding": {
+                "state": {
+                  "style": "form"
+                },
+                "frequency": {
+                  "style": "form"
+                },
+                "duration": {
+                  "style": "form"
+                },
+                "suspension": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "422": {
+            "description": "Invalid parameter provided"
+          },
+          "429": {
+            "description": "Too many requests",
+            "headers": {
+              "x-ratelimit-limit": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Requests limit per minute"
+              }
+            }
+          },
+          "503": {
+            "description": "Server error, failed to execute command.  Please retry."
+          }
+        },
+        "deprecated": false
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApikeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-KEY",
+        "description": "API key for the spa you wish to control, obtainable at [myarcticspa.com](https://myarcticspa.com/spa/SpaAPIManagement.aspx)."
+      }
+    }
+  },
+  "security": [
+    {
+      "ApikeyAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Spa Control",
+      "description": ""
+    }
+  ]
+}
