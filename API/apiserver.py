@@ -15,7 +15,7 @@ spa_state = {
         "4": "off",
         "5": "off",
     },
-    "filter_status": "Idle",
+    "filter_status": 0,
     "filter_duration": 4,
     "filter_frequency": 2.0,
     "filter_suspension": False
