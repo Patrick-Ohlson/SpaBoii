@@ -269,7 +269,7 @@ def send_packet_with_debug(spaIP):
 
 
 
-spaIP=get_spa()
+spaIP="192.168.68.106"#get_spa()
 print (f"Spa IP: {spaIP}")
 send_packet_with_debug(spaIP)
 

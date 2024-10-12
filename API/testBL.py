@@ -134,4 +134,5 @@ def shutdown():
 
 # Run the Flask app
 if __name__ == '__main__':
-    app.run(debug=False)
+    #debug must be false for vscode to work
+    app.run(debug=False, port=5000,host='0.0.0.0')
