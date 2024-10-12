@@ -7,7 +7,7 @@ spa_lights_on:
   payload: '{"state": "on"}'
 
 spa_lights_off:
-    url: "https://192.168.68.112:5000/v2/spa/lights"
+    url: "http://192.168.68.112:5000/v2/spa/lights"
     method: PUT
     headers: 
       X-API-KEY: !secret arctic_spa_apikey
@@ -15,7 +15,7 @@ spa_lights_off:
     payload: '{"state": "off"}'
 
 spa_pump_1_on:
-    url: "https://192.168.68.112:5000/v2/spa/pumps/1"
+    url: "http://192.168.68.112:5000/v2/spa/pumps/1"
     method: PUT
     headers: 
       X-API-KEY: !secret arctic_spa_apikey
@@ -23,7 +23,7 @@ spa_pump_1_on:
     payload: '{"state": "on"}'
 
 spa_pump_1_low:
-    url: "https://192.168.68.112:5000/v2/spa/pumps/1"
+    url: "http://192.168.68.112:5000/v2/spa/pumps/1"
     method: PUT
     headers: 
       X-API-KEY: !secret arctic_spa_apikey
@@ -31,7 +31,7 @@ spa_pump_1_low:
     payload: '{"state": "low"}'
 
 spa_pump_1_off:
-    url: "https://192.168.68.112:5000/v2/spa/pumps/1"
+    url: "http://192.168.68.112:5000/v2/spa/pumps/1"
     method: PUT
     headers: 
       X-API-KEY: !secret arctic_spa_apikey
@@ -39,7 +39,7 @@ spa_pump_1_off:
     payload: '{"state": "off"}'
 
 spa_pump_2_on:
-    url: "https://192.168.68.112:5000/v2/spa/pumps/2"
+    url: "http://192.168.68.112:5000/v2/spa/pumps/2"
     method: PUT
     headers: 
       X-API-KEY: !secret arctic_spa_apikey
@@ -47,7 +47,7 @@ spa_pump_2_on:
     payload: '{"state": "on"}'
 
 spa_pump_2_off:
-    url: "https://192.168.68.112:5000/v2/spa/pumps/2"
+    url: "http://192.168.68.112:5000/v2/spa/pumps/2"
     method: PUT
     headers: 
       X-API-KEY: !secret arctic_spa_apikey
@@ -55,7 +55,7 @@ spa_pump_2_off:
     payload: '{"state": "off"}'
 
 spa_set_temperature:
-    url: "https://192.168.68.112:5000/v2/spa/temperature"
+    url: "http://192.168.68.112:5000/v2/spa/temperature"
     method: PUT
     headers: 
       X-API-KEY: !secret arctic_spa_apikey
