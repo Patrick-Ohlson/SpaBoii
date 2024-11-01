@@ -232,6 +232,7 @@ def send_packet_with_debug(spaIP):
             pack=None
             continue
         if pack!=None:
+            print(f"Packet: {packet.type}")
             if packet.type==48:
                 #print("Configurations")
                 continue
