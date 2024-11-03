@@ -2,6 +2,7 @@ import time
 from ha_mqtt_discoverable import Settings
 from ha_mqtt_discoverable.sensors import Button, ButtonInfo,Sensor, SensorInfo,BinarySensor, BinarySensorInfo
 from paho.mqtt.client import Client, MQTTMessage
+import yaml
 
 # Mock spa state for testing
 spa_state = {
@@ -36,7 +37,7 @@ def perform_my_custom_action():
 # To receive button commands from HA, define a callback function:
 def my_callback(client: Client, user_data, message: MQTTMessage):
     perform_my_custom_action()
-import yaml
+
 
 def read_settings_from_yaml(file_path):
     try:
@@ -52,61 +53,62 @@ def read_settings_from_yaml(file_path):
         print(f"Error reading settings: {e}")
         return None, None, None
 
-file_path = "settings.yaml"
-host, username, password = read_settings_from_yaml(file_path)
-print(f"Host: {host}, Username: {username}, Password: {password}")
+def init():
+    file_path = "settings.yaml"
+    host, username, password = read_settings_from_yaml(file_path)
+    print(f"Host: {host}, Username: {username}, Password: {password}")
 
 
 
-# Configure the required parameters for the MQTT broker
-mqtt_settings = Settings.MQTT(host=host,username=username,password=password)
+    # Configure the required parameters for the MQTT broker
+    mqtt_settings = Settings.MQTT(host=host,username=username,password=password)
 
-# Information about the button
-button_info = ButtonInfo(name="SPABoii.CloseService")
+    # Information about the button
+    button_info = ButtonInfo(name="SPABoii.CloseService")
 
-settings = Settings(mqtt=mqtt_settings, entity=button_info)
-
-
-
-# Define an optional object to be passed back to the callback
-user_data = "Some custom data"
-
-# Instantiate the button
-my_button = Button(settings, my_callback, user_data)
-
-# Publish the button's discoverability message to let HA automatically notice it
-my_button.write_config()
-
-# Information about the sensor
-sensor_info = SensorInfoExtra(
-    name="SPABoii.CurrentTemp",
-    #name="spa_temperature",
-    device_class="temperature",
-    unit_of_measurement="°C",
-    suggested_display_precision=2,
-    unique_id="spa_temp_sensor",
-)
-
-settings = Settings(mqtt=mqtt_settings, entity=sensor_info)
-
-# Instantiate the sensor
-mysensor = Sensor(settings)
-mysensor.write_config()
-
-mysensor.set_attributes({"my attribute": "awesome"})
+    settings = Settings(mqtt=mqtt_settings, entity=button_info)
 
 
 
-state=True
-temp=20
-#wait 5 minutes
+    # Define an optional object to be passed back to the callback
+    user_data = "Some custom data"
 
-while state:
-    time.sleep(10)
-    #increase temperature by 1
-    temp+=0.1
-    # Change the state of the sensor, publishing an MQTT message that gets picked up by HA
-    mysensor.set_state(temp)
+    # Instantiate the button
+    my_button = Button(settings, my_callback, user_data)
 
-my_button.delete()
-mysensor.delete()
+    # Publish the button's discoverability message to let HA automatically notice it
+    my_button.write_config()
+
+    # Information about the sensor
+    sensor_info = SensorInfoExtra(
+        name="SPABoii.CurrentTemp",
+        #name="spa_temperature",
+        device_class="temperature",
+        unit_of_measurement="°C",
+        suggested_display_precision=2,
+        unique_id="spa_temp_sensor",
+    )
+
+    settings = Settings(mqtt=mqtt_settings, entity=sensor_info)
+
+    # Instantiate the sensor
+    mysensor = Sensor(settings)
+    mysensor.write_config()
+
+    mysensor.set_attributes({"my attribute": "awesome"})
+
+
+
+    state=True
+    temp=20
+    #wait 5 minutes
+
+    while state:
+        time.sleep(10)
+        #increase temperature by 1
+        temp+=0.1
+        # Change the state of the sensor, publishing an MQTT message that gets picked up by HA
+        mysensor.set_state(temp)
+
+    my_button.delete()
+    mysensor.delete()
