@@ -27,14 +27,6 @@ global state
 class SensorInfoExtra(SensorInfo):
     suggested_display_precision: int
 
-# Configure the required parameters for the MQTT broker
-mqtt_settings = Settings.MQTT(host="192.168.68.71",username="mqtt",password="Zx12as78qw!")
-
-# Information about the button
-button_info = ButtonInfo(name="SPABoii.CloseService")
-
-settings = Settings(mqtt=mqtt_settings, entity=button_info)
-
 # Define the custom action to be performed
 def perform_my_custom_action():
     global state
@@ -44,6 +36,16 @@ def perform_my_custom_action():
 # To receive button commands from HA, define a callback function:
 def my_callback(client: Client, user_data, message: MQTTMessage):
     perform_my_custom_action()
+    
+# Configure the required parameters for the MQTT broker
+mqtt_settings = Settings.MQTT(host="192.168.68.71",username="mqtt",password="Zx12as78qw!")
+
+# Information about the button
+button_info = ButtonInfo(name="SPABoii.CloseService")
+
+settings = Settings(mqtt=mqtt_settings, entity=button_info)
+
+
 
 # Define an optional object to be passed back to the callback
 user_data = "Some custom data"
