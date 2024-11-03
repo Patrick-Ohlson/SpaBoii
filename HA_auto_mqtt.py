@@ -54,6 +54,8 @@ def read_settings_from_yaml(file_path):
         return None, None, None
 
 def init():
+    global state
+    state=True
     file_path = "settings.yaml"
     host, username, password = read_settings_from_yaml(file_path)
     print(f"Host: {host}, Username: {username}, Password: {password}")
@@ -97,6 +99,22 @@ def init():
 
     mysensor.set_attributes({"my attribute": "awesome"})
 
+    #create a sensor list, name value pair
+    sensors=[]
+
+
+    
+
+    #add mysensor to a list, as name and value
+    sensors.append(("Temperature", mysensor))
+    sensors.append(("CloseService", my_button))
+    
+   
+    
+
+    
+
+    return sensors
 
 
     state=True

@@ -6,11 +6,13 @@ import io
 from levven_packet import LevvenPacket  
 import proto.spa_live_pb2 as SpaLive
 
-from HA_auto_mqtt import read_settings_from_yaml, init
+from HA_auto_mqtt import init as HA_init
 
 
 from API.BL.producer import Producer
 from API.BL.consumer import Consumer
+
+sensors= HA_init()
 
 # Create shared queues for messages and responses
 message_queue = queue.Queue()
@@ -219,7 +221,7 @@ def receive(packet):
     """Handle the received packet (placeholder function)."""
     #print(f"Received packet: {packet}")
 
-def send_packet_with_debug(spaIP):
+def send_packet_with_debug(spaIP,sensors):
     # Create a TCP client socket
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -302,6 +304,16 @@ def send_packet_with_debug(spaIP):
                 
                 status=producer.send_message(live_json, "SPABoii.Live")
                 print(status)
+
+               #get value by name Temperature from list
+                for name, sensor in sensors:
+                    print(f"Name: {name}, Value: {sensor}")
+                    if name=="Temperature":
+                        temp=live_json.get("Temperature")
+                        sensor.set_state(temp)
+            
+
+                
                 
                 
 
@@ -314,9 +326,15 @@ def send_packet_with_debug(spaIP):
 
 
 
+
+#get temperature from live_json json
+
+
+
+
 spaIP="192.168.68.106"#get_spa()
 print (f"Spa IP: {spaIP}")
-send_packet_with_debug(spaIP)
+send_packet_with_debug(spaIP,sensors=sensors)
 
 
 
