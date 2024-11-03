@@ -36,9 +36,30 @@ def perform_my_custom_action():
 # To receive button commands from HA, define a callback function:
 def my_callback(client: Client, user_data, message: MQTTMessage):
     perform_my_custom_action()
-    
+import yaml
+
+def read_settings_from_yaml(file_path):
+    try:
+        with open(file_path, 'r') as file:
+            settings = yaml.safe_load(file)
+        
+        host = settings.get("host")
+        username = settings.get("username")
+        password = settings.get("password")
+
+        return host, username, password
+    except Exception as e:
+        print(f"Error reading settings: {e}")
+        return None, None, None
+
+file_path = "settings.yaml"
+host, username, password = read_settings_from_yaml(file_path)
+print(f"Host: {host}, Username: {username}, Password: {password}")
+
+
+
 # Configure the required parameters for the MQTT broker
-mqtt_settings = Settings.MQTT(host="192.168.68.71",username="mqtt",password="Zx12as78qw!")
+mqtt_settings = Settings.MQTT(host=host,username=username,password=password)
 
 # Information about the button
 button_info = ButtonInfo(name="SPABoii.CloseService")

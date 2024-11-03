@@ -6,9 +6,22 @@ import io
 from levven_packet import LevvenPacket  
 import proto.spa_live_pb2 as SpaLive
 
+
+from API.BL.producer import Producer
+from API.BL.consumer import Consumer
+
 # Create shared queues for messages and responses
 message_queue = queue.Queue()
 response_queue = queue.Queue()
+
+# Instantiate Producer and Consumer
+producer = Producer(message_queue, response_queue)
+consumer = Consumer(message_queue, response_queue)
+
+# Start the consumer
+consumer.start()
+
+
 
 
 
@@ -269,11 +282,27 @@ def send_packet_with_debug(spaIP):
 
                 print(f"Current ADC: {spa_live.current_adc}")
 
-                #convert spa_live to json string
+                live_json={
+                    "Temperature": (spa_live.temperature_fahrenheit - 32) * 5 / 9,
+                    "Filter": SpaLive.FILTER_STATUS.Name(spa_live.filter),
+                    "Onzen": SpaLive.OZONE_STATUS.Name(spa_live.onzen).lstrip("OZONE_"),
+                    "Blower 1": SpaLive.PUMP_STATUS.Name(spa_live.blower_1),
+                    "Blower 2": SpaLive.PUMP_STATUS.Name(spa_live.blower_2),
+                    "Pump 1": SpaLive.PUMP_STATUS.Name(spa_live.pump_1),
+                    "Pump 2": SpaLive.PUMP_STATUS.Name(spa_live.pump_2),
+                    "Pump 3": SpaLive.PUMP_STATUS.Name(spa_live.pump_3),
+                    "Heater 1": SpaLive.HEATER_STATUS.Name(spa_live.heater_1),
+                    "Heater 2": SpaLive.HEATER_STATUS.Name(spa_live.heater_2),
+                    "Light": spa_live.lights,
+                    "All On": spa_live.all_on,
+                    "Current ADC": spa_live.current_adc
+                    }
+                
+                status=producer.send_message(live_json, "SPABoii.Live")
+                print(status)
                 
                 
-                if message_queue.full() == False:
-                    message_queue.put(spa_live)
+
                 
                 
                 
