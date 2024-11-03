@@ -6,6 +6,8 @@ import io
 from levven_packet import LevvenPacket  
 import proto.spa_live_pb2 as SpaLive
 
+from HA_auto_mqtt import read_settings_from_yaml, init
+
 
 from API.BL.producer import Producer
 from API.BL.consumer import Consumer
