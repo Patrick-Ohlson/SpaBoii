@@ -63,7 +63,7 @@ def init(SPAproducer):
     state=True
     file_path = "settings.yaml"
     host, username, password = read_settings_from_yaml(file_path)
-    print(f"Host: {host}, Username: {username}, Password: {password}")
+    #print(f"Host: {host}, Username: {username}, Password: {password}")
 
 
 
