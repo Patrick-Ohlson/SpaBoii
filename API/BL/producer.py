@@ -6,9 +6,10 @@ import uuid
 
 # Producer class
 class Producer:
-    def __init__(self, message_queue, response_queue):
+    def __init__(self, message_queue, response_queue,cmd_queue):
         self.message_queue = message_queue
         self.response_queue = response_queue
+        self.cmd_queue = cmd_queue
 
     def send_message(self, message, route_id, timeout=5):
         """Send a message to the message queue with a unique ID and wait for a response."""
@@ -17,9 +18,6 @@ class Producer:
         message_payload = {'guid': guid, 'message': message, 'route_id': route_id}
         
      
-
-
-
         print(f"Producer: Sending message - {message_payload}")
         self.message_queue.put(message_payload)  # Put the message in the queue
 

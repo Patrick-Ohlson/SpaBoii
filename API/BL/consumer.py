@@ -8,9 +8,10 @@ import uuid
 
 # Consumer class
 class Consumer:
-    def __init__(self, message_queue, response_queue):
+    def __init__(self, message_queue, response_queue,cmd_queue):
         self.message_queue = message_queue
         self.response_queue = response_queue
+        self.cmd_queue = cmd_queue
         self.running = True
 
     def start(self):
@@ -32,9 +33,17 @@ class Consumer:
             guid = message_payload['guid']
             message = message_payload['message']
             route_id = message_payload['route_id']
+            success = False
+
+            #handle messages
+            if route_id == "SPABoii.CloseService":
+                self.cmd_queue.put("CloseService")
+                print("Consumer: CloseService command recieved")
+                success = True
 
             # Simulate random success or error in processing
-            if random.choice([True, False]):
+            #if random.choice([True, False]):
+            if success:
                 print(f"Consumer: Successfully processed message from {route_id} - {message}")
                 response = {'status': 'success', 'message': f"Processed {message}", 'guid': guid}
             else:

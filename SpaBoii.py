@@ -12,15 +12,22 @@ from HA_auto_mqtt import init as HA_init
 from API.BL.producer import Producer
 from API.BL.consumer import Consumer
 
-sensors= HA_init()
+global producer, consumer
+global debug
+
+debug=False
+
 
 # Create shared queues for messages and responses
+cmd_queue = queue.Queue()
 message_queue = queue.Queue()
 response_queue = queue.Queue()
 
 # Instantiate Producer and Consumer
-producer = Producer(message_queue, response_queue)
-consumer = Consumer(message_queue, response_queue)
+producer = Producer(message_queue, response_queue, cmd_queue)
+consumer = Consumer(message_queue, response_queue, cmd_queue)
+
+sensors= HA_init(producer)
 
 # Start the consumer
 consumer.start()
@@ -222,6 +229,7 @@ def receive(packet):
     #print(f"Received packet: {packet}")
 
 def send_packet_with_debug(spaIP,sensors):
+    global debug
     # Create a TCP client socket
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -232,6 +240,16 @@ def send_packet_with_debug(spaIP,sensors):
     
     i=0
     while True:
+
+        #handle commands
+        try:
+            cmd=producer.cmd_queue.get(timeout=1)
+        except queue.Empty:
+            cmd=None
+        if cmd=="CloseService":
+            #exit SPABoii
+            break
+
         #ping the spa every 4th iteration
         if i%4==0:
             i=0
@@ -256,12 +274,14 @@ def send_packet_with_debug(spaIP,sensors):
             pack=None
             continue
         if pack!=None:
-            print(f"Packet: {packet.type}")
+            if debug:
+                print(f"Packet: {packet.type}")
             if packet.type==48:
                 #print("Configurations")
                 continue
             elif packet.type==0:
-                print("\n\nLive:\n")
+                if debug:
+                    print("\n\nLive:\n")
                 bytes_result = bytes(packet.payload)
                 #print the bytes
                 hex_representation = ' '.join(f'{byte:02}' for byte in bytes_result)                
@@ -270,21 +290,21 @@ def send_packet_with_debug(spaIP,sensors):
                 
 
                 
+                if debug==True:
+                    print(f"Temperature: {(spa_live.temperature_fahrenheit-32)* 5 / 9}")
+                    print(f"Filter: {SpaLive.FILTER_STATUS.Name(spa_live.filter)}")
+                    print(f"Onzen: {SpaLive.OZONE_STATUS.Name(spa_live.onzen).lstrip('OZONE_')}")
+                    print(f"BLower 1: {SpaLive.PUMP_STATUS.Name(spa_live.blower_1)}")
+                    print(f"BLower 2: {SpaLive.PUMP_STATUS.Name(spa_live.blower_2)}")
+                    print(f"Pump 1: { SpaLive.PUMP_STATUS.Name(spa_live.pump_1) }")
+                    print(f"Pump 2: {SpaLive.PUMP_STATUS.Name(spa_live.pump_2)}")
+                    print(f"Pump 3: {SpaLive.PUMP_STATUS.Name(spa_live.pump_3) }")
+                    print(f"Heater 1: {SpaLive.HEATER_STATUS.Name(spa_live.heater_1)}")
+                    print(f"Heater 1: {SpaLive.HEATER_STATUS.Name(spa_live.heater_2)}")
+                    print(f"Light: {spa_live.lights}")
+                    print(f"All On: {spa_live.all_on}")
 
-                print(f"Temperature: {(spa_live.temperature_fahrenheit-32)* 5 / 9}")
-                print(f"Filter: {SpaLive.FILTER_STATUS.Name(spa_live.filter)}")
-                print(f"Onzen: {SpaLive.OZONE_STATUS.Name(spa_live.onzen).lstrip('OZONE_')}")
-                print(f"BLower 1: {SpaLive.PUMP_STATUS.Name(spa_live.blower_1)}")
-                print(f"BLower 2: {SpaLive.PUMP_STATUS.Name(spa_live.blower_2)}")
-                print(f"Pump 1: { SpaLive.PUMP_STATUS.Name(spa_live.pump_1) }")
-                print(f"Pump 2: {SpaLive.PUMP_STATUS.Name(spa_live.pump_2)}")
-                print(f"Pump 3: {SpaLive.PUMP_STATUS.Name(spa_live.pump_3) }")
-                print(f"Heater 1: {SpaLive.HEATER_STATUS.Name(spa_live.heater_1)}")
-                print(f"Heater 1: {SpaLive.HEATER_STATUS.Name(spa_live.heater_2)}")
-                print(f"Light: {spa_live.lights}")
-                print(f"All On: {spa_live.all_on}")
-
-                print(f"Current ADC: {spa_live.current_adc}")
+                    print(f"Current ADC: {spa_live.current_adc}")
 
                 live_json={
                     "Temperature": (spa_live.temperature_fahrenheit - 32) * 5 / 9,
@@ -303,11 +323,12 @@ def send_packet_with_debug(spaIP,sensors):
                     }
                 
                 status=producer.send_message(live_json, "SPABoii.Live")
-                print(status)
+                #print(status)
 
                #get value by name Temperature from list
                 for name, sensor in sensors:
-                    print(f"Name: {name}, Value: {sensor}")
+                    if debug:
+                        print(f"Name: {name}")#, Value: {sensor}")
                     if name=="Temperature":
                         temp=live_json.get("Temperature")
                         sensor.set_state(temp)

@@ -4,6 +4,7 @@ from ha_mqtt_discoverable.sensors import Button, ButtonInfo,Sensor, SensorInfo,B
 from paho.mqtt.client import Client, MQTTMessage
 import yaml
 
+
 # Mock spa state for testing
 spa_state = {
     "connected": True,
@@ -23,7 +24,7 @@ spa_state = {
     "filter_suspension": False
 }
 
-global state
+global state, producer
 
 class SensorInfoExtra(SensorInfo):
     suggested_display_precision: int
@@ -31,6 +32,9 @@ class SensorInfoExtra(SensorInfo):
 # Define the custom action to be performed
 def perform_my_custom_action():
     global state
+
+    producer.send_message("{CMD: CloseService}", "SPABoii.CloseService")
+
     state = not state
     print("Stop recieved, deleting buttons and sensors")
 
@@ -53,8 +57,9 @@ def read_settings_from_yaml(file_path):
         print(f"Error reading settings: {e}")
         return None, None, None
 
-def init():
-    global state
+def init(SPAproducer):
+    global state, producer
+    producer = SPAproducer
     state=True
     file_path = "settings.yaml"
     host, username, password = read_settings_from_yaml(file_path)
