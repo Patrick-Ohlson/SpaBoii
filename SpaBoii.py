@@ -1,9 +1,16 @@
 
 import socket
-
+import threading
+import queue
 import io
 from levven_packet import LevvenPacket  
 import proto.spa_live_pb2 as SpaLive
+
+# Create shared queues for messages and responses
+message_queue = queue.Queue()
+response_queue = queue.Queue()
+
+
 
 state = 0
 temp1 = temp2 = temp3 = 0
@@ -261,6 +268,12 @@ def send_packet_with_debug(spaIP):
                 print(f"All On: {spa_live.all_on}")
 
                 print(f"Current ADC: {spa_live.current_adc}")
+
+                #convert spa_live to json string
+                
+                
+                if message_queue.full() == False:
+                    message_queue.put(spa_live)
                 
                 
                 

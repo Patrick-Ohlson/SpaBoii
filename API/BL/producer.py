@@ -16,6 +16,12 @@ class Producer:
         guid = str(uuid.uuid4())
         message_payload = {'guid': guid, 'message': message, 'route_id': route_id}
         
+        #check if message_queue is full
+        if self.message_queue.length() != 0:
+            return {'status': 'error', 'message': 'Message queue is full'}, 503
+
+
+
         print(f"Producer: Sending message - {message_payload}")
         self.message_queue.put(message_payload)  # Put the message in the queue
 
