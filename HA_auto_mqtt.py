@@ -1,6 +1,6 @@
 import time
 from ha_mqtt_discoverable import Settings
-from ha_mqtt_discoverable.sensors import Button, ButtonInfo,Sensor, SensorInfo,BinarySensor, BinarySensorInfo
+from ha_mqtt_discoverable.sensors import Button, ButtonInfo,Sensor, SensorInfo,BinarySensor, BinarySensorInfo,Number,NumberInfo  
 from paho.mqtt.client import Client, MQTTMessage
 import yaml
 
@@ -28,19 +28,27 @@ global state, producer
 
 class SensorInfoExtra(SensorInfo):
     suggested_display_precision: int
+class NumberInfoExtra(NumberInfo):
+    suggested_display_precision: int
 
 # Define the custom action to be performed
-def perform_my_custom_action():
+def closeservice_action():
     global state
+    message={"CMD": {"CloseService": 1337}}
+    producer.send_message(message, "SPABoii.CloseService")
 
-    producer.send_message("{CMD: CloseService}", "SPABoii.CloseService")
-
-    state = not state
-    print("Stop recieved, deleting buttons and sensors")
 
 # To receive button commands from HA, define a callback function:
 def my_callback(client: Client, user_data, message: MQTTMessage):
-    perform_my_custom_action()
+    if user_data == "closeservice": 
+        closeservice_action()
+    if user_data == "setpoint":
+        print(f"Setpoint: {message.payload}")
+        # Update the mock spa state
+        spa_state["setpointF"] = float(message.payload)
+        # Publish the new state to the MQTT broker
+        message={"CMD": {"SetPoint": float(message.payload)}}
+        producer.send_message(message, "SPABoii.SetPoint")
 
 
 def read_settings_from_yaml(file_path):
@@ -78,7 +86,7 @@ def init(SPAproducer):
 
 
     # Define an optional object to be passed back to the callback
-    user_data = "Some custom data"
+    user_data = "closeservice"
 
     # Instantiate the button
     my_button = Button(settings, my_callback, user_data)
@@ -104,6 +112,27 @@ def init(SPAproducer):
 
     mysensor.set_attributes({"my attribute": "awesome"})
 
+    number_info = NumberInfoExtra(
+        name="SPABoii.SetPoint",
+        device_class="temperature",
+        unit_of_measurement="°C",
+        suggested_display_precision=2,
+        unique_id="spa_setpoint_sensor",
+        user_data="setpoint",
+        min=10,
+        max=40,
+        
+    )
+
+    settings = Settings(mqtt=mqtt_settings, entity=number_info)
+
+    # Instantiate the sensor
+    mysetpoint = Number(settings,my_callback,"setpoint")
+    mysetpoint.write_config()
+
+    #mysetpoint.delete()
+    
+
     #create a sensor list, name value pair
     sensors=[]
 
@@ -113,6 +142,7 @@ def init(SPAproducer):
     #add mysensor to a list, as name and value
     sensors.append(("Temperature", mysensor))
     sensors.append(("CloseService", my_button))
+    sensors.append(("SetPoint", mysetpoint))
     
    
     

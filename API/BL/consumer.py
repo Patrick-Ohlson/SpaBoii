@@ -37,8 +37,12 @@ class Consumer:
 
             #handle messages
             if route_id == "SPABoii.CloseService":
-                self.cmd_queue.put("CloseService")
+                self.cmd_queue.put(message)
                 print("Consumer: CloseService command recieved")
+                success = True
+            elif route_id == "SPABoii.SetPoint":
+                self.cmd_queue.put(message)
+                print("Consumer: SetPoint command recieved")
                 success = True
 
             # Simulate random success or error in processing

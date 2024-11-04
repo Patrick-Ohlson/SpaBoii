@@ -3,8 +3,10 @@ import socket
 import threading
 import queue
 import io
+import time
 from levven_packet import LevvenPacket  
 import proto.spa_live_pb2 as SpaLive
+import proto.SpaCommand_pb2 as SpaCommand
 
 from HA_auto_mqtt import init as HA_init
 
@@ -239,27 +241,62 @@ def send_packet_with_debug(spaIP,sensors):
 
     
     i=0
+    #get start time of loop
+    start_time = time.time()
     while True:
 
         #handle commands
+
         try:
             cmd=producer.cmd_queue.get(timeout=1)
         except queue.Empty:
             cmd=None
-        if cmd=="CloseService":
-            #exit SPABoii
-            break
+        if cmd!=None:
+            action=cmd["CMD"]
+            closeservice=action.get("CloseService")
+            newSetpointF=action.get("SetPoint")
+            if closeservice != None:
+                #exit SPABoii
+                break
+            if newSetpointF!=None:
+                #set new setpoint
+                print(f"Setpoint: {newSetpointF}")
+                spacmd=SpaCommand.spa_command()
+                #convert newSetpointF to fahrenheit int 
+                
+                newSetpointC=(newSetpointF*9/5)+32
+                #convert to int
+                newSetpointC=int(newSetpointC)
+                
 
-        #ping the spa every 4th iteration
-        if i%4==0:
+
+                
+                spacmd.set_temperature_setpoint_fahrenheit=newSetpointC
+                #convert spacmd proto to bytes
+                buffer=spacmd.SerializeToString()
+                pckt = LevvenPacket(1, buffer)  # Initialize with type 0 and an empty payload
+                pack = LevvenToBytes(pckt)
+
+                # Send the serialized packet over the TCP connection
+                client.sendall(pack)
+                
+                #break
+
+        #ping the spa every 4th iteration for keep alive
+        if i%2==0:
             i=0
             PingSpa(client)
         i+=1
 
 
         temp = bytearray(2048)  # Declare the variable temp
-        temp=client.recv(2048)
-
+        try:
+            temp = client.recv(2048)  # Receive data from the server
+        except Exception as e:
+            #calculate time since start
+            elapsed_time = time.time() - start_time
+            print(f"Error: {e}")
+            continue
         #print recieved data as hex
         hex_representation = ' '.join(f'{byte:02X}' for byte in temp)
 
@@ -290,6 +327,8 @@ def send_packet_with_debug(spaIP,sensors):
                 
 
                 
+
+                
                 if debug==True:
                     print(f"Temperature: {(spa_live.temperature_fahrenheit-32)* 5 / 9}")
                     print(f"Filter: {SpaLive.FILTER_STATUS.Name(spa_live.filter)}")
@@ -305,8 +344,9 @@ def send_packet_with_debug(spaIP,sensors):
                     print(f"All On: {spa_live.all_on}")
 
                     print(f"Current ADC: {spa_live.current_adc}")
-
+                
                 live_json={
+                    "SetPoint": (spa_live.temperature_setpoint_fahrenheit - 32) * 5 / 9,
                     "Temperature": (spa_live.temperature_fahrenheit - 32) * 5 / 9,
                     "Filter": SpaLive.FILTER_STATUS.Name(spa_live.filter),
                     "Onzen": SpaLive.OZONE_STATUS.Name(spa_live.onzen).lstrip("OZONE_"),
@@ -332,6 +372,11 @@ def send_packet_with_debug(spaIP,sensors):
                     if name=="Temperature":
                         temp=live_json.get("Temperature")
                         sensor.set_state(temp)
+                    if name=="SetPoint":
+                        temp=live_json.get("SetPoint")
+                        #round to 2 decimals
+                        temp=round(temp,2)
+                        sensor.set_value(temp)
             
 
                 
@@ -348,7 +393,7 @@ def send_packet_with_debug(spaIP,sensors):
 
 
 
-#get temperature from live_json json
+
 
 
 

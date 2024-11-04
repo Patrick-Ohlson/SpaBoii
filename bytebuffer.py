@@ -56,7 +56,7 @@ class ByteBuffer:
         # Seek to the index
         self.stream.seek(index)
         # Write int at the specific index
-        self.stream.write(struct.pack('>i', value))
+        self.stream.write(struct.pack('>I', value))
         # Return to the original position
         self.stream.seek(current_position)
 
