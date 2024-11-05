@@ -296,9 +296,11 @@ def send_packet_with_debug(spaIP,sensors):
             #calculate time in minutes since start
             elapsed_minutes = (time.time() - start_time) / 60 /60
             print(f"Connection lost after {elapsed_minutes:.2f} hours")
+            client.connect((spaIP, 65534))
+            print("Reconnecting")
             
             
-            print(f"Error: {e}")
+            #print(f"Error: {e}")
             continue
         #print recieved data as hex
         hex_representation = ' '.join(f'{byte:02X}' for byte in temp)
