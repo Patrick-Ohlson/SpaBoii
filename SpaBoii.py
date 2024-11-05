@@ -293,8 +293,11 @@ def send_packet_with_debug(spaIP,sensors):
         try:
             temp = client.recv(2048)  # Receive data from the server
         except Exception as e:
-            #calculate time since start
-            elapsed_time = time.time() - start_time
+            #calculate time in minutes since start
+            elapsed_minutes = (time.time() - start_time) / 60 /60
+            print(f"Connection lost after {elapsed_minutes:.2f} hours")
+            
+            
             print(f"Error: {e}")
             continue
         #print recieved data as hex
@@ -324,6 +327,9 @@ def send_packet_with_debug(spaIP,sensors):
                 hex_representation = ' '.join(f'{byte:02}' for byte in bytes_result)                
                 spa_live = SpaLive.spa_live()
                 spa_live.ParseFromString(bytes_result)
+
+                for status_value, status_name in SpaLive.HEATER_STATUS.items():
+                    print(f"Heater Status: {status_name} = {status_value}")
                 
 
                 
@@ -376,7 +382,11 @@ def send_packet_with_debug(spaIP,sensors):
                         temp=live_json.get("SetPoint")
                         #round to 2 decimals
                         temp=round(temp,2)
-                        sensor.set_value(temp)
+                        if temp>9:
+                            sensor.set_value(temp)
+                    if name=="Heater1":
+                        temp=spa_live.heater_1
+                        sensor.set_state(temp)
             
 
                 

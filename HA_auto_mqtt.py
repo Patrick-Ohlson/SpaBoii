@@ -130,7 +130,28 @@ def init(SPAproducer):
     mysetpoint = Number(settings,my_callback,"setpoint")
     mysetpoint.write_config()
 
-    #mysetpoint.delete()
+    sensor_info = SensorInfoExtra(
+        name="SPABoii.Heater1",
+        #name="spa_temperature",
+        #device_class="switch",
+        suggested_display_precision=2,
+        unique_id="spa_heater1_sensor",
+
+        
+    )
+
+    settings = Settings(mqtt=mqtt_settings, entity=sensor_info)
+
+    # Instantiate the sensor
+    heater1_sensor = Sensor(settings)
+    heater1_sensor.set_state(0)
+
+    heater1_sensor.write_config()
+
+    
+
+    
+   
     
 
     #create a sensor list, name value pair
@@ -143,6 +164,7 @@ def init(SPAproducer):
     sensors.append(("Temperature", mysensor))
     sensors.append(("CloseService", my_button))
     sensors.append(("SetPoint", mysetpoint))
+    sensors.append(("Heater1", heater1_sensor))
     
    
     
