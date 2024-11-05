@@ -144,7 +144,7 @@ def init(SPAproducer):
 
     # Instantiate the sensor
     heater1_sensor = Sensor(settings)
-    heater1_sensor.set_state(0)
+    heater1_sensor.set_state(70)
 
     heater1_sensor.write_config()
 
