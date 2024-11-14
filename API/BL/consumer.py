@@ -8,11 +8,12 @@ import uuid
 
 # Consumer class
 class Consumer:
-    def __init__(self, message_queue, response_queue,cmd_queue):
+    def __init__(self, message_queue, response_queue,cmd_queue,debug=False):
         self.message_queue = message_queue
         self.response_queue = response_queue
         self.cmd_queue = cmd_queue
         self.running = True
+        self.debug = debug
 
     def start(self):
         """Start the consumer thread."""
@@ -20,6 +21,7 @@ class Consumer:
         self.thread.start()
 
     def _consume(self):
+        global debug
         """Consume messages from the queue and process them."""
         while self.running:
             message_payload = self.message_queue.get()  # Get message from the queue
@@ -38,20 +40,24 @@ class Consumer:
             #handle messages
             if route_id == "SPABoii.CloseService":
                 self.cmd_queue.put(message)
-                print("Consumer: CloseService command recieved")
+                if self.debug:
+                    print("Consumer: CloseService command recieved")
                 success = True
             elif route_id == "SPABoii.SetPoint":
                 self.cmd_queue.put(message)
-                print("Consumer: SetPoint command recieved")
+                if self.debug:
+                    print("Consumer: SetPoint command recieved")
                 success = True
 
             # Simulate random success or error in processing
             #if random.choice([True, False]):
             if success:
-                print(f"Consumer: Successfully processed message from {route_id} - {message}")
+                if self.debug:
+                    print(f"Consumer: Successfully processed message from {route_id} - {message}")
                 response = {'status': 'success', 'message': f"Processed {message}", 'guid': guid}
             else:
-                print(f"Consumer: Failed to process message from {route_id} - {message}")
+                if self.debug:
+                    print(f"Consumer: Failed to process message from {route_id} - {message}")
                 response = {'status': 'error', 'message': f"Failed to process {message}", 'guid': guid}
 
             # Send the response back to the response queue

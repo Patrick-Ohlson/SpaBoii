@@ -130,6 +130,11 @@ def init(SPAproducer):
     mysetpoint = Number(settings,my_callback,"setpoint")
     mysetpoint.write_config()
 
+    
+
+    #get the state of the sensor
+    
+
     sensor_info = SensorInfoExtra(
         name="SPABoii.Heater1",
         #name="spa_temperature",

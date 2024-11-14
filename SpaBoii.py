@@ -283,7 +283,7 @@ def send_packet_with_debug(spaIP,sensors):
                 #break
 
         #ping the spa every 4th iteration for keep alive
-        if i%2==0:
+        if i%4==0:
             i=0
             PingSpa(client)
         i+=1
@@ -292,10 +292,13 @@ def send_packet_with_debug(spaIP,sensors):
         temp = bytearray(2048)  # Declare the variable temp
         try:
             temp = client.recv(2048)  # Receive data from the server
+            
         except Exception as e:
             #calculate time in minutes since start
             elapsed_minutes = (time.time() - start_time) / 60 /60
             print(f"Connection lost after {elapsed_minutes:.2f} hours")
+            client.close()
+            client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             client.connect((spaIP, 65534))
             print("Reconnecting")
             
@@ -329,9 +332,9 @@ def send_packet_with_debug(spaIP,sensors):
                 hex_representation = ' '.join(f'{byte:02}' for byte in bytes_result)                
                 spa_live = SpaLive.spa_live()
                 spa_live.ParseFromString(bytes_result)
-
-                for status_value, status_name in SpaLive.HEATER_STATUS.items():
-                    print(f"Heater Status: {status_name} = {status_value}")
+                if debug:
+                    for status_value, status_name in SpaLive.HEATER_STATUS.items():
+                        print(f"Heater Status: {status_name} = {status_value}")
                 
 
                 
