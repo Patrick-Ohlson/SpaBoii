@@ -21,6 +21,12 @@ Feel free to test it with your own spa, it should at this stage only provide inf
 Python 3.8 (or above)
 see requirements.txt
 
+create a settings.yaml with:
+
+host: YOURMQTT
+username: MQTTUSERNAME
+password: PASSWORD
+
 ## Usage
 python SpaBoii.py
 
