@@ -24,7 +24,9 @@ see requirements.txt
 create a settings.yaml with:
 
 host: YOURMQTT
+
 username: MQTTUSERNAME
+
 password: PASSWORD
 
 ## Usage
