@@ -1,4 +1,6 @@
 *.yaml
+#ignore pycache
+__pycache__/
 # Ignore node_modules directory
 node_modules/
 
