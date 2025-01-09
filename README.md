@@ -15,7 +15,7 @@ It might get it's own thread
 
 This is boilerplate code for accessing Arctic Spa's and derivatives with python 3.8
 
-Feel free to test it with your own spa, it requires Home >Assistant with MQTT and somewhere to run Python
+Feel free to test it with your own spa, it requires Home Assistant with MQTT and somewhere to run Python
 
 ## Requirements
 Python 3.8 (or above)
