@@ -29,6 +29,7 @@ response_queue = queue.Queue()
 producer = Producer(message_queue, response_queue, cmd_queue)
 consumer = Consumer(message_queue, response_queue, cmd_queue)
 
+# Initialize the sensors
 sensors= HA_init(producer)
 
 # Start the consumer
@@ -298,13 +299,12 @@ def send_packet_with_debug(spaIP,sensors):
             elapsed_minutes = (time.time() - start_time) / 60 /60
             print(f"Connection lost after {elapsed_minutes:.2f} hours")
             client.close()
-            client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            client.connect((spaIP, 65534))
-            print("Reconnecting")
+            
+            print("Restarting")
             
             
             #print(f"Error: {e}")
-            continue
+            break
         #print recieved data as hex
         hex_representation = ' '.join(f'{byte:02X}' for byte in temp)
 
@@ -411,11 +411,14 @@ def send_packet_with_debug(spaIP,sensors):
 
 
 
-
-
-spaIP="192.168.68.106"#get_spa()
-print (f"Spa IP: {spaIP}")
-send_packet_with_debug(spaIP,sensors=sensors)
+while True:
+    try:
+        spaIP="192.168.68.106"#get_spa()
+        print (f"Spa IP: {spaIP}")
+        send_packet_with_debug(spaIP,sensors=sensors)
+        time.sleep(5)
+    except Exception as e:
+        continue
 
 
 
