@@ -19,12 +19,23 @@ Feel free to test it with your own spa, it should at this stage only provide inf
 
 ## Requirements
 Python 3.8 (or above)
-pip install protobuf==5.28.2
+see requirements.txt
 
 ## Usage
 python SpaBoii.py
 
-This should locate the SPA on your network and provide basic info
+This should locate the SPA on your network and and initialize HA via Mqtt
+
+
+SPABoii.SetPoint = Sets target temperature and starts heaters, lower than current temp stops heaters
+
+SPABoii.CurrentTemp = Current SPA temp
+
+SPABoii.Heater1 = Shows current status of heaters
+
+SPABoii.CloseService = Button for restart of service
+
+
 
 REMEMBER: This is boilerplate code, meant to provide a basic codebase for communication with Arctic SPA's
 

@@ -137,8 +137,6 @@ def init(SPAproducer):
 
     sensor_info = SensorInfoExtra(
         name="SPABoii.Heater1",
-        #name="spa_temperature",
-        #device_class="switch",
         suggested_display_precision=2,
         unique_id="spa_heater1_sensor",
 
@@ -179,16 +177,3 @@ def init(SPAproducer):
     return sensors
 
 
-    state=True
-    temp=20
-    #wait 5 minutes
-
-    while state:
-        time.sleep(10)
-        #increase temperature by 1
-        temp+=0.1
-        # Change the state of the sensor, publishing an MQTT message that gets picked up by HA
-        mysensor.set_state(temp)
-
-    my_button.delete()
-    mysensor.delete()

@@ -49,8 +49,7 @@ class Consumer:
                     print("Consumer: SetPoint command recieved")
                 success = True
 
-            # Simulate random success or error in processing
-            #if random.choice([True, False]):
+            
             if success:
                 if self.debug:
                     print(f"Consumer: Successfully processed message from {route_id} - {message}")
@@ -62,7 +61,7 @@ class Consumer:
 
             # Send the response back to the response queue
             self.response_queue.put(response)
-            time.sleep(2)  # Simulate processing time
+            time.sleep(2)  
 
     def stop(self):
         """Stop the consumer by sending a termination signal."""
