@@ -5,11 +5,11 @@ USE AT OWN RISK, I TAKE NO RESPONSIBILITY FOR ANY ERRORS THIS MIGHT CAUSE
 [License](License.md)
 
 ## Background 
-This started with the Home Assistant Forum thread, regarding Arctic SPA API
+Thread with progress and history links
 
-https://community.home-assistant.io/t/jacuzzi-arctic-spas-api/464596
+https://community.home-assistant.io/t/arctic-spa-no-cloud-api-spa-boii/782040
 
-It might get it's own thread
+
 
 ## Preface
 
