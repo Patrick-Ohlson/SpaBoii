@@ -1,6 +1,17 @@
 import time
 from ha_mqtt_discoverable import Settings
-from ha_mqtt_discoverable.sensors import Button, ButtonInfo,Sensor, SensorInfo,BinarySensor, BinarySensorInfo,Number,NumberInfo  
+from ha_mqtt_discoverable.sensors import (
+    Button,
+    ButtonInfo,
+    Sensor,
+    SensorInfo,
+    BinarySensor,
+    BinarySensorInfo,
+    Number,
+    NumberInfo,
+    Select,
+    SelectInfo
+)
 from paho.mqtt.client import Client, MQTTMessage
 import yaml
 
@@ -43,13 +54,17 @@ def my_callback(client: Client, user_data, message: MQTTMessage):
     if user_data == "closeservice": 
         closeservice_action()
     if user_data == "setpoint":
-        print(f"Setpoint: {message.payload}")
+        print(f"Setpoint: {message.payload}°F")
         # Update the mock spa state
         spa_state["setpointF"] = float(message.payload)
         # Publish the new state to the MQTT broker
         message={"CMD": {"SetPoint": float(message.payload)}}
         producer.send_message(message, "SPABoii.SetPoint")
 
+# To receive pump select commands from HA, define a callback function:
+def pump_callback(client: Client, user_data, message: MQTTMessage):
+    if user_data == "pump1":
+        print(f"Pump1 select message: {message.payload}")
 
 def read_settings_from_yaml(file_path):
     try:
@@ -66,22 +81,39 @@ def read_settings_from_yaml(file_path):
         return None, None, None
 
 def init(SPAproducer):
+    debug = False # True
     global state, producer
     producer = SPAproducer
-    state=True
+    state = True
     file_path = "settings.yaml"
     host, username, password = read_settings_from_yaml(file_path)
-    #print(f"Host: {host}, Username: {username}, Password: {password}")
+    if debug:
+        print(f"Connecting to MQTT:")
+        print(f"MQTT Host: {host}, Username: {username}") # , Password: {password}")
 
+    # Attempt to provide single client and avoid a broker connection per sensor
+    # Doesn't appear to work on this version of ha_mqtt_discoverable
+    #mqttClient = Client()
+    #mqttClient.username_pw_set(username, password)
+    #mqttClient.connect(host, 1883, 60)
+    # Test only
+    # mqttClient.publish("hmd/select/SPABoii-Pump1/state", 'HIGH', False)
 
+    #mqttClient.loop_start()
 
     # Configure the required parameters for the MQTT broker
-    mqtt_settings = Settings.MQTT(host=host,username=username,password=password)
+    mqtt_settings = Settings.MQTT(host=host, username=username, password=password, debug=debug)
+    #mqtt_settings = Settings.MQTT(client=mqttClient, debug=debug)
 
     # Information about the button
-    button_info = ButtonInfo(name="SPABoii.CloseService")
+    button_info = ButtonInfo(
+        name="SPABoii.CloseService",
+        # Needed to be able to assign an area (not working)
+        unique_id="spa_restart_monitoring_service",
+    )
 
-    settings = Settings(mqtt=mqtt_settings, entity=button_info)
+    # Separate Settings object using same setting so only one MQTT connection
+    closeServiceSettings = Settings(mqtt=mqtt_settings, entity=button_info)
 
 
 
@@ -89,11 +121,28 @@ def init(SPAproducer):
     user_data = "closeservice"
 
     # Instantiate the button
-    my_button = Button(settings, my_callback, user_data)
+    my_button = Button(closeServiceSettings, my_callback, user_data)
 
     # Publish the button's discoverability message to let HA automatically notice it
     my_button.write_config()
 
+    #### Pump 1 ####
+    pump1_info = SelectInfo(
+        name="SPABoii.Pump1",
+        unique_id="spa_pump1_mode",
+        options=["OFF", "LOW", "HIGH"],
+    )
+
+    pump_data = "pump1"
+    pump1Settings = Settings(mqtt=mqtt_settings, entity=pump1_info)
+
+    # Instantiate the sensor
+    pump1_select = Select(pump1Settings, pump_callback, pump_data)
+    # pump1_select.set_option('OFF')
+
+    pump1_select.write_config()
+    
+   
     # Information about the sensor
     sensor_info = SensorInfoExtra(
         name="SPABoii.CurrentTemp",
@@ -104,10 +153,10 @@ def init(SPAproducer):
         unique_id="spa_temp_sensor",
     )
 
-    settings = Settings(mqtt=mqtt_settings, entity=sensor_info)
+    currentTempSettings = Settings(mqtt=mqtt_settings, entity=sensor_info)
 
     # Instantiate the sensor
-    mysensor = Sensor(settings)
+    mysensor = Sensor(currentTempSettings)
     mysensor.write_config()
 
     mysensor.set_attributes({"my attribute": "awesome"})
@@ -121,13 +170,12 @@ def init(SPAproducer):
         user_data="setpoint",
         min=10,
         max=40,
-        
     )
 
-    settings = Settings(mqtt=mqtt_settings, entity=number_info)
+    setPointSettings = Settings(mqtt=mqtt_settings, entity=number_info)
 
     # Instantiate the sensor
-    mysetpoint = Number(settings,my_callback,"setpoint")
+    mysetpoint = Number(setPointSettings, my_callback, "setpoint")
     mysetpoint.write_config()
 
     
@@ -135,26 +183,25 @@ def init(SPAproducer):
     #get the state of the sensor
     
 
-    sensor_info = SensorInfoExtra(
+    #### Heater 1 ####
+    #sensor_info = SensorInfoExtra(
+    heater_info = BinarySensorInfo(
         name="SPABoii.Heater1",
-        suggested_display_precision=2,
+        #suggested_display_precision=2,
+        device_class="heat",
         unique_id="spa_heater1_sensor",
-
-        
     )
 
-    settings = Settings(mqtt=mqtt_settings, entity=sensor_info)
+    heaterSettings = Settings(mqtt=mqtt_settings, entity=heater_info)
 
     # Instantiate the sensor
-    heater1_sensor = Sensor(settings)
-    heater1_sensor.set_state(70)
+    heater1_sensor = BinarySensor(heaterSettings)
+    #heater1_sensor.set_state(70)
+    #heater1_sensor.off();
 
     heater1_sensor.write_config()
 
     
-
-    
-   
     
 
     #create a sensor list, name value pair
@@ -168,6 +215,7 @@ def init(SPAproducer):
     sensors.append(("CloseService", my_button))
     sensors.append(("SetPoint", mysetpoint))
     sensors.append(("Heater1", heater1_sensor))
+    sensors.append(("Pump1", pump1_select))
     
    
     
