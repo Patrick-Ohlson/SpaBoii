@@ -18,7 +18,7 @@ This is boilerplate code for accessing Arctic Spa's and derivatives with python 
 Feel free to test it with your own spa, it requires Home Assistant with MQTT and somewhere to run Python
 
 ## Requirements
-Python 3.8 (or above)
+Python 3.10 (or above)
 see requirements.txt
 
 create a settings.yaml with:
