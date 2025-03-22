@@ -13,7 +13,7 @@ https://community.home-assistant.io/t/arctic-spa-no-cloud-api-spa-boii/782040
 
 ## Preface
 
-This is boilerplate code for accessing Arctic Spa's and derivatives with python 3.8
+This is boilerplate code for accessing Arctic Spa's and derivatives with python 3.10
 
 Feel free to test it with your own spa, it requires Home Assistant with MQTT and somewhere to run Python
 
