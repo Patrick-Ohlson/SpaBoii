@@ -174,6 +174,7 @@ def init(SPAproducer):
     sensor_info = SensorInfoExtra(
         name="SPABoii.CurrentTemp",
         device_class="temperature",
+        unit_of_measurement="°F",
         unique_id="spa_temp_sensor",
         suggested_display_precision=0,
     )
